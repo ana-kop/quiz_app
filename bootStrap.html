@@ -1,0 +1,241 @@
+<!-- 
+Reference: 
+The code provided in class for CEGE0043 by Claire Ellul served as a prototype for the code to be found in this file. This code by Claire Ellul can be found in the 
+following GitHub repositories: https://github.com/ucl-geospatial/cege0043-2020-examples-app; https://github.com/ucl-geospatial/cege0043-apps-ucessie. 
+Since a large proportion of the code in this file came from this source, it will not be further referenced in this file, but instead, unless stated otherwise, 
+one can assume that the code in this file was adapted or reproduced from the repositories above. 
+(In a small number of cases where no reference is given and the specific code did not originate from these repositories, it can be assumed the code was produced by the developer who wrote these files, using only said developer's own knowledge.)
+ -->
+
+
+<DOCTYPE html>
+  <html lang="en">
+  <head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8">
+
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+
+    <!-- custom fonts and styles for the bootstrap template -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css" type="text/css" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"  crossorigin="anonymous">
+    <link href="css/sb-admin-2.css" type="text/css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css"
+       integrity="sha512-wcw6ts8Anuw10Mzh9Ytw4pylW8+NAD4ch3lqm9lzAsTxg0GFeJgoAtxuCLREZSC5lUXdVyo/7yfsqFjQ4S+aKw=="
+       crossorigin=""/>
+
+    <!-- the following links incorporate the CSS required for custom icon creation -->
+    <link rel="stylesheet" href="css/ionicons.min.css">
+    <link rel="stylesheet" href="css/leaflet.awesome-markers.css">
+
+    <script src="https://unpkg.com/leaflet@1.1.0/dist/leaflet.js"
+       integrity="sha512-mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1MrdXvMcA==" crossorigin=""></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="js/leaflet.awesome-markers.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+
+    <!-- Javascript files needed for the Apps -->
+    <script src="js/advancedFunctionality.js"></script>
+    <script src="js/coreFunctionality.js"></script>
+    <script src="js/startUp.js"></script>
+    <script src="js/locationTracking.js"></script>
+    <script src="js/graph.js"></script>
+    
+    <style type="text/css"> #mapid { height: 180px; } </style>
+
+    <title>CEGE0043 App</title>
+    <!-- adapted from: https://blackrockdigital.github.io/startbootstrap-sb-admin-2/ -->
+
+  </head>
+
+
+
+  <body id="page-top">
+    <div id="wrapper">
+
+      <!-- Sidebar -->
+      <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" >
+          <div class="sidebar-brand-text mx-3">CEGE0043 App</div>
+        </a>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+
+        <!-- Menu for the desktop view (large screen) -->
+        <li class="nav-item d-none d-lg-block" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Show existing questions</span>
+          </a>
+          <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <a class="collapse-item" href="#" onclick="loadAllQuestions()">All questions</a>     
+              <a class="collapse-item" href="#" onclick="loadQuestionsThisWeek()">Added in the last week</a>
+            </div>
+          </div>
+        </li>
+
+
+
+        <li class="nav-item d-none d-lg-block">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Remove existing questions</span>
+          </a>
+          <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+             <a class="collapse-item" href="#" onclick="removeAllQuestions()">All questions</a>          
+             <a class="collapse-item" href="#" onclick="removeQuestionsThisWeek()">Added in the last week</a>          
+           </div>
+           </div>
+         </li>
+
+
+
+        <li class="nav-item d-none d-lg-block" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Show participation rates</span>
+          </a>
+          <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+             <a class="collapse-item" href="#" onclick="loadParticipationUserGraph()">This user</a>          
+             <a class="collapse-item" href="#" onclick="loadParticipationAllGraph()">All users</a>          
+           </div>
+           </div>
+         </li>
+
+
+         <li class="nav-item d-none d-lg-block" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="" onclick="loadDifficultQuestions()" aria-expanded="true" aria-controls="collapseOne">
+            <!-- the next line is the cog image -->
+            <i class="fas fa-fw fa-cog"></i>
+            <span>5 most difficult questions</span>
+          </a>
+        </li>
+
+
+        <hr class="sidebar-divider">
+
+
+            <li class="nav-item d-none d-lg-block" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="" onclick="helpQuestionSetting()" aria-expanded="true" aria-controls="collapseTwo">
+            <!-- the next line is the cog image -->
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Help</span>
+          </a>
+        </li>
+
+
+
+
+
+        <!-- Menu for the mobile view (small screen) -->
+        <li class="nav-item d-lg-none" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Show existing questions</span>
+          </a>
+          <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <a class="collapse-item" href="#" onclick="loadFiveClosestQuestions()">5 closest Questions</a> 
+              <a class="collapse-item" href="#" onclick="loadLastQuestions()">Last 5 questions answered</a>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="nav-item d-lg-none" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSeven" aria-expanded="true" aria-controls="collapseSeven">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Remove existing questions</span>
+          </a>
+          <div id="collapseSeven" class="collapse" aria-labelledby="headingSeven" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <a class="collapse-item" href="#" onclick="removeFiveClosestQuestions()">5 closest Questions</a> 
+              <a class="collapse-item" href="#" onclick="removeLastQuestions()">Last 5 questions answered</a>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="nav-item d-lg-none" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="" onclick="loadTopScorersGraph()" aria-expanded="true" aria-controls="collapseEight">
+            <!-- the next line is the cog image -->
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Top 5 scorers</span>
+          </a>
+        </li>
+
+
+        <hr class="sidebar-divider">
+
+
+        <li class="nav-item d-lg-none" >
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="" onclick="helpQuiz()" aria-expanded="true" aria-controls="collapseTwo">
+            <!-- the next line is the cog image -->
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Help</span>
+          </a>
+        </li>
+    
+
+       </ul>
+       <!-- End of Sidebar -->
+
+      <div id="content-wrapper" class="d-flex flex-column">
+      <div id="mapcontainer" class="h-100 w-100" style="z-index:0;"> </div>
+
+       <!-- Graph -->
+      <div id="graphWrapper" class="h-75 w-75 d-flex flex-column" style="background-color: white;   
+      display: inline-block;position:absolute; top:-9999;left:15%;z-index:0">
+
+      <!-- Button -->
+      <button type="button" class="close" style="position: absolute;right:10px;top:5px;" aria-label="Close" onclick="closeGraph();"> 
+      <span aria-hidden="true">&times;</span>
+      </button>
+
+      </div>
+
+      </div>
+      <!-- End of Main Content -->
+
+      </div>
+    <!-- end of wrapper -->
+
+
+<!-- Hidden divs containing user's current location -->
+<div id='Latitude' hidden>Latitude will be displayed here</div>
+<div id='Longitude' hidden>Longitude will be displayed here</div>
+
+</body>
+
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>  
+<!-- Bootstrap core JavaScript-->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="js/sb-admin-2.js"></script>
+
+
+
+<!-- Javascript to add screen resize event listener and start up the apps by calling the startUp() function -->
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {       
+      window.addEventListener('resize', setMapClickEvent);
+      startUp();
+})
+
+</script>
+</html>
+
+
+
